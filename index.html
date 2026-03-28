@@ -33,7 +33,107 @@
 
 <script>
     // REMPLACE CECI PAR TON URL SHEETDB
-    const API_URL = "https://sheetdb.io/api/v1/TON_ID_ICI"; 
+    const API_URL = "<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapports de Police</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+        form { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
+        input, textarea, button { padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #002D62; color: white; cursor: pointer; font-weight: bold; }
+        .rapport-card { border-left: 5px solid #002D62; background: #eee; padding: 15px; margin-bottom: 10px; border-radius: 4px; }
+        .date { font-size: 0.8em; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Nouveau Rapport de Police</h2>
+    <form id="formRapport">
+        <input type="text" id="nom" placeholder="Votre Nom et Prénom" required>
+        <input type="text" id="grade" placeholder="Votre Grade" required>
+        <input type="text" id="matricule" placeholder="Matricule" required>
+        <textarea id="motif" placeholder="Description des faits..." rows="4" required></textarea>
+        <button type="submit" id="btnEnvoyer">Publier le rapport</button>
+    </form>
+
+    <hr>
+
+    <h2>Historique des Rapports (Public)</h2>
+    <div id="listeRapports">Chargement des rapports...</div>
+</div>
+
+<script>
+    // REMPLACE CECI PAR TON URL SHEETDB
+    const API_URL = "https://sheetdb.io/api/v1/0j79q4bv7dykq"; 
+
+    const form = document.getElementById('formRapport');
+    const liste = document.getElementById('listeRapports');
+
+    // --- FONCTION 1 : LIRE LES RAPPORTS ---
+    async function chargerRapports() {
+        try {
+            const response = await fetch(API_URL);
+            const data = await response.json();
+            
+            liste.innerHTML = ""; // On vide la zone
+            
+            // On affiche du plus récent au plus ancien
+            data.reverse().forEach(rapport => {
+                liste.innerHTML += `
+                    <div class="rapport-card">
+                        <div class="date">Posté le : ${rapport.date}</div>
+                        <strong>${rapport.nom} [${rapport.grade}]</strong> - Matricule : ${rapport.matricule}
+                        <p>${rapport.motif}</p>
+                    </div>
+                `;
+            });
+        } catch (error) {
+            liste.innerHTML = "Erreur lors du chargement des rapports.";
+        }
+    }
+
+    // --- FONCTION 2 : ENVOYER UN RAPPORT ---
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnEnvoyer');
+        btn.innerText = "Envoi en cours...";
+        btn.disabled = true;
+
+        const nouveauRapport = {
+            nom: document.getElementById('nom').value,
+            grade: document.getElementById('grade').value,
+            matricule: document.getElementById('matricule').value,
+            motif: document.getElementById('motif').value,
+            date: new Date().toLocaleString('fr-FR')
+        };
+
+        try {
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: [nouveauRapport] })
+            });
+            
+            form.reset(); // Vide le formulaire
+            chargerRapports(); // Actualise la liste immédiatement
+        } catch (error) {
+            alert("Erreur lors de l'envoi.");
+        } finally {
+            btn.innerText = "Publier le rapport";
+            btn.disabled = false;
+        }
+    });
+
+    // Charger la liste au démarrage de la page
+    window.onload = chargerRapports;
+</script>
+
+</body>
+</html>; 
 
     const form = document.getElementById('formRapport');
     const liste = document.getElementById('listeRapports');
